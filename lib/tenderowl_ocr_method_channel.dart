@@ -10,8 +10,21 @@ class MethodChannelTenderowlOcr extends TenderowlOcrPlatform {
   final methodChannel = const MethodChannel('tenderowl_ocr');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
+  Future<List<String>?> extractTextFromImage(String path) async {
+    List<Object?>? response = await methodChannel.invokeMethod<List<Object?>>(
+      'extractTextFromImage',
+      path,
+    );
+
+    // Process response because MethodChannel returns only List of Object?
+    if (response == null) return [];
+
+    // If list is not empty try to convert it to List<String>
+    List<String> result = [];
+    for (var item in response) {
+      if (item != null) result.add(item.toString());
+    }
+
+    return result;
   }
 }

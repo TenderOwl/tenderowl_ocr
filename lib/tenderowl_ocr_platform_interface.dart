@@ -23,7 +23,8 @@ abstract class TenderowlOcrPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<List<String>?> extractTextFromImage(String path) {
+    throw UnimplementedError(
+        'extractTextFromImage() has not been implemented.');
   }
 }

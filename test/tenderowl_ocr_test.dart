@@ -7,9 +7,9 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 class MockTenderowlOcrPlatform
     with MockPlatformInterfaceMixin
     implements TenderowlOcrPlatform {
-
   @override
-  Future<String?> getPlatformVersion() => Future.value('42');
+  Future<List<String>> extractTextFromImage(String path) =>
+      Future.value(["Extracted", "Text"]);
 }
 
 void main() {
@@ -19,11 +19,12 @@ void main() {
     expect(initialPlatform, isInstanceOf<MethodChannelTenderowlOcr>());
   });
 
-  test('getPlatformVersion', () async {
+  test('extractTextFromImage', () async {
     TenderowlOcr tenderowlOcrPlugin = TenderowlOcr();
     MockTenderowlOcrPlatform fakePlatform = MockTenderowlOcrPlatform();
     TenderowlOcrPlatform.instance = fakePlatform;
 
-    expect(await tenderowlOcrPlugin.getPlatformVersion(), '42');
+    expect(await tenderowlOcrPlugin.extractTextFromImage("image.png"),
+        ["Extracted", "Text"]);
   });
 }
