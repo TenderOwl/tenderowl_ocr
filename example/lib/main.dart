@@ -1,7 +1,8 @@
+import 'package:clipboard/clipboard.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:tenderowl_ocr/tenderowl_ocr.dart';
 
 void main() {
@@ -16,47 +17,119 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-  final _tenderowlOcrPlugin = TenderowlOcr();
+  String? filepath;
+  String? extractedText;
+  final tenderowlOcrPlugin = TenderowlOcr();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
-    try {
-      platformVersion =
-          await _tenderowlOcrPlugin.getPlatformVersion() ?? 'Unknown platform version';
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
-    setState(() {
-      _platformVersion = platformVersion;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(colorSchemeSeed: const Color.fromARGB(255, 33, 20, 14)),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Example app'),
         ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MaterialButton(
+                    onPressed: onOpenImage,
+                    child: Row(
+                      children: const [
+                        Icon(Icons.file_open_outlined),
+                        Text('Open image')
+                      ],
+                    ),
+                  ),
+                  if (filepath != null)
+                    Builder(builder: (context) {
+                      return Row(
+                        children: [
+                          MaterialButton(
+                            onPressed: () async {
+                              await FlutterClipboard.copy(
+                                      'hello flutter friends')
+                                  .then(
+                                (value) =>
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Copied!')),
+                                ),
+                              );
+                            },
+                            child: Row(children: const [
+                              Icon(Icons.copy_outlined),
+                              Text('Copy')
+                            ]),
+                          ),
+                          MaterialButton(
+                            onPressed: onClean,
+                            child: Row(children: const [
+                              Icon(Icons.delete_outlined),
+                              Text('Clean')
+                            ]),
+                          ),
+                        ],
+                      );
+                    })
+                ],
+              ),
+            ),
+            Expanded(
+              child: extractedText == null
+                  ? const Center(child: Text('Open image to extract text'))
+                  : SingleChildScrollView(
+                      child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: SizedBox(
+                        width: double.maxFinite,
+                        child: Text(
+                          extractedText!,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    )),
+            )
+          ],
         ),
+      ),
+    );
+  }
+
+  Future onOpenImage() async {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null) {
+      final lines = await tenderowlOcrPlugin
+          .extractTextFromImage(result.files.single.path!);
+      if (lines != null) {
+        setState(() {
+          filepath = result.files.single.path!;
+          extractedText = lines.join('\n');
+        });
+      }
+    }
+  }
+
+  void onClean() {
+    setState(() {
+      filepath = null;
+      extractedText = null;
+    });
+  }
+
+  Future onCopy() async {
+    if (extractedText == null) return;
+    await FlutterClipboard.copy(extractedText!).then(
+      (value) => ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Copied!')),
       ),
     );
   }

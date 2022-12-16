@@ -1,0 +1,22 @@
+PODS:
+  - FlutterMacOS (1.0.0)
+  - tenderowl_ocr (0.0.1):
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - tenderowl_ocr (from `Flutter/ephemeral/.symlinks/plugins/tenderowl_ocr/macos`)
+
+EXTERNAL SOURCES:
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  tenderowl_ocr:
+    :path: Flutter/ephemeral/.symlinks/plugins/tenderowl_ocr/macos
+
+SPEC CHECKSUMS:
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
+  tenderowl_ocr: 192a6aa3095088ed28ee784126ca7fc909371777
+
+PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
+
+COCOAPODS: 1.11.3
